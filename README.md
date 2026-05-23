@@ -1,0 +1,76 @@
+# Absensi Kuliah
+
+Sistem presensi mahasiswa berbasis mobile menggunakan **Flutter** + **Node.js/Express**.
+
+---
+
+## 1. Menjalankan Project
+
+Cara termudah dan paling direkomendasikan untuk menjalankan backend dan frontend sekaligus adalah dengan script `dev.sh`.
+
+```bash
+# Jalankan di root direktori project
+./dev.sh
+# Atau
+FLUTTER_MODE=--profile ./dev.sh
+# Atau
+flutter run --dart-define=API_URL=http://192.168.1.113:3000/api
+
+flutter build apk --dart-define=API_URL=https://pharmaceutical-julian-stored-apollo.trycloudflare.com/api
+
+```
+
+Atau jika Anda ingin menjalankannya secara manual di terminal terpisah:
+
+```bash
+# Terminal 1 (Backend)
+cd backend
+npm run dev
+
+# Terminal 2 (Frontend)
+cd frontend
+flutter run
+
+# (Jika pakai HP fisik Android, jalankan ini di terminal agar frontend bisa terkoneksi ke localhost backend)
+adb reverse tcp:3000 tcp:3000
+```
+
+---
+
+## 2. Reset Database
+
+Jika Anda ingin menghapus seluruh data dan mereset tabel ke kondisi awal, jalankan perintah berikut:
+
+```bash
+cd backend
+npx prisma migrate reset --force
+```
+
+_(Catatan: Perintah ini akan menghapus semua data, membuat ulang tabel, dan otomatis menjalankan proses seeding)._
+
+---
+
+## 3. Seeding Database
+
+Jika Anda hanya ingin menjalankan seeding ulang (menambahkan data mahasiswa, dosen, absen, dll) tanpa menghapus struktur tabel, jalankan:
+
+```bash
+cd backend
+npx prisma db seed
+```
+
+# kill port
+
+```bash
+lsof -ti :3000 | xargs -r kill -9
+```
+
+# Ubuntu/Debian
+
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+
+cloudflared tunnel --url http://localhost:3000
+
+pm2 start src/index.js --name "backend"
+pm2 start cloudflared --name "tunnel" -- tunnel --url http://localhost:3000
