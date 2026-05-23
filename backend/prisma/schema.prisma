@@ -1,0 +1,136 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  STUDENT
+  LECTURER
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  leave
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DayOfWeek {
+  Minggu
+  Senin
+  Selasa
+  Rabu
+  Kamis
+  Jumat
+  Sabtu
+}
+
+model Student {
+  id             String         @id @default(uuid())
+  studentId      String         @unique
+  name           String
+  email          String         @unique
+  phone          String?
+  department     String
+  faculty        String
+  semester       Int
+  password       String
+  faceDescriptor Json?
+  attendances    Attendance[]
+  leaveRequests  LeaveRequest[]
+  enrollments    Enrollment[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Lecturer {
+  id             String         @id @default(uuid())
+  lecturerId     String         @unique   // NIP
+  name           String
+  email          String         @unique
+  phone          String?
+  department     String
+  faculty        String
+  password       String
+  courses        Course[]
+  reviewedLeaves LeaveRequest[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Course {
+  id             String         @id @default(uuid())
+  code           String         @unique
+  name           String
+  lecturerId     String
+  lecturer       Lecturer       @relation(fields: [lecturerId], references: [id])
+  schedules      Schedule[]
+  attendances    Attendance[]
+  enrollments    Enrollment[]
+  leaveRequests  LeaveRequest[]
+}
+
+model Enrollment {
+  id             String         @id @default(uuid())
+  studentId      String
+  courseId        String
+  student        Student        @relation(fields: [studentId], references: [id])
+  course         Course         @relation(fields: [courseId], references: [id])
+  createdAt      DateTime       @default(now())
+
+  @@unique([studentId, courseId])
+}
+
+model Schedule {
+  id             String         @id @default(uuid())
+  dayOfWeek      DayOfWeek
+  startTime      String
+  endTime        String
+  room           String
+  courseId        String
+  course         Course         @relation(fields: [courseId], references: [id])
+}
+
+model Attendance {
+  id             String           @id @default(uuid())
+  status         AttendanceStatus
+  date           DateTime         @default(now())
+  meetingCount   Int
+  faceVerified   Boolean          @default(false)
+  studentId      String
+  courseId        String
+  student        Student          @relation(fields: [studentId], references: [id])
+  course         Course           @relation(fields: [courseId], references: [id])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([studentId, courseId, meetingCount])
+}
+
+model LeaveRequest {
+  id             String         @id @default(uuid())
+  reason         String
+  description    String?        @db.Text
+  evidenceUrl    String?
+  status         LeaveStatus    @default(PENDING)
+  date           DateTime
+  studentId      String
+  student        Student        @relation(fields: [studentId], references: [id])
+  courseId       String
+  course         Course         @relation(fields: [courseId], references: [id])
+  reviewedById   String?
+  reviewedBy     Lecturer?      @relation(fields: [reviewedById], references: [id])
+  reviewedAt     DateTime?
+  reviewNote     String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
