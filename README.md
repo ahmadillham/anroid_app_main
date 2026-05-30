@@ -16,8 +16,7 @@ FLUTTER_MODE=--profile ./dev.sh
 # Atau
 flutter run --dart-define=API_URL=http://192.168.1.113:3000/api
 
-flutter build apk --dart-define=API_URL=https://pharmaceutical-julian-stored-apollo.trycloudflare.com/api
-
+flutter build apk --dart-define=API_URL=https://api.mukitcell.site/api
 ```
 
 Atau jika Anda ingin menjalankannya secara manual di terminal terpisah:
@@ -72,5 +71,6 @@ sudo dpkg -i cloudflared.deb
 
 cloudflared tunnel --url http://localhost:3000
 
+pm2 start cloudflared --name "cf-tunnel" --interpreter none -- tunnel run 4ee98bfe-8229-4647-8b86-245e5f1462b0
 pm2 start src/index.js --name "backend"
-pm2 start cloudflared --name "tunnel" -- tunnel --url http://localhost:3000
+pm2 startup 

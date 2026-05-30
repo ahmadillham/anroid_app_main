@@ -34,7 +34,7 @@ app.use('/api/face', require('./routes/faceRoutes'));
 app.use('/api/lecturer', require('./routes/lecturerRoutes'));
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Absensi Backend API is running' });
+    res.json({ status: 'ok', message: 'Backend API is running' });
 });
 
 // Global error handler (must be after all routes)
